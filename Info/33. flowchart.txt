@@ -1,0 +1,359 @@
+import React, { useState } from 'react';
+import { ChevronDown, ChevronUp, CheckCircle, Code, Database, Shield, CreditCard, Settings, FileText } from 'lucide-react';
+
+const DhakaCartFlowchart = () => {
+  const [expandedSection, setExpandedSection] = useState(null);
+
+  const toggleSection = (section) => {
+    setExpandedSection(expandedSection === section ? null : section);
+  };
+
+  const steps = [
+    {
+      id: 1,
+      title: "Frontend - Product Catalog, Cart & Checkout",
+      icon: <Code className="w-6 h-6" />,
+      color: "from-blue-500 to-blue-600",
+      components: [
+        "Home Page with Product Grid",
+        "Product Detail Page",
+        "Shopping Cart",
+        "Checkout Form",
+        "Order Confirmation"
+      ],
+      files: [
+        "src/pages/HomePage.js",
+        "src/pages/ProductDetailPage.js",
+        "src/pages/CartPage.js",
+        "src/pages/CheckoutPage.js",
+        "src/components/ProductCard.js",
+        "src/components/CartItem.js"
+      ]
+    },
+    {
+      id: 2,
+      title: "Backend API - Products, Orders & Authentication",
+      icon: <Database className="w-6 h-6" />,
+      color: "from-green-500 to-green-600",
+      components: [
+        "Product CRUD APIs",
+        "Order Management APIs",
+        "User Registration & Login",
+        "JWT Token Generation",
+        "Middleware for Auth"
+      ],
+      files: [
+        "routes/productRoutes.js",
+        "routes/orderRoutes.js",
+        "routes/authRoutes.js",
+        "middleware/authMiddleware.js",
+        "controllers/productController.js"
+      ]
+    },
+    {
+      id: 3,
+      title: "Database Schema - Products, Users, Orders",
+      icon: <Database className="w-6 h-6" />,
+      color: "from-purple-500 to-purple-600",
+      components: [
+        "Users Table",
+        "Products Table",
+        "Categories Table",
+        "Orders Table",
+        "Order Items Table"
+      ],
+      files: [
+        "database/schema.sql",
+        "database/migrations/",
+        "models/User.js",
+        "models/Product.js",
+        "models/Order.js"
+      ]
+    },
+    {
+      id: 4,
+      title: "User Authentication & Authorization",
+      icon: <Shield className="w-6 h-6" />,
+      color: "from-red-500 to-red-600",
+      components: [
+        "JWT Token System",
+        "Password Hashing (bcrypt)",
+        "Role-Based Access Control",
+        "Protected Routes",
+        "Session Management"
+      ],
+      files: [
+        "utils/jwtHelper.js",
+        "middleware/authMiddleware.js",
+        "middleware/roleMiddleware.js"
+      ]
+    },
+    {
+      id: 5,
+      title: "Admin Dashboard - Management Interface",
+      icon: <Settings className="w-6 h-6" />,
+      color: "from-yellow-500 to-yellow-600",
+      components: [
+        "Product Management (Add/Edit/Delete)",
+        "Order Management & Status",
+        "User Management",
+        "Analytics Dashboard",
+        "Category Management"
+      ],
+      files: [
+        "src/pages/admin/AdminDashboard.js",
+        "src/pages/admin/ProductManagement.js",
+        "src/pages/admin/OrderManagement.js",
+        "src/pages/admin/UserManagement.js"
+      ]
+    },
+    {
+      id: 6,
+      title: "Payment Integration Simulation",
+      icon: <CreditCard className="w-6 h-6" />,
+      color: "from-pink-500 to-pink-600",
+      components: [
+        "Mock Payment Gateway",
+        "Order Processing Flow",
+        "Payment Status Tracking",
+        "Invoice Generation",
+        "Payment Confirmation Email"
+      ],
+      files: [
+        "services/paymentService.js",
+        "utils/invoiceGenerator.js",
+        "routes/paymentRoutes.js"
+      ]
+    },
+    {
+      id: 7,
+      title: "DevOps Transformation Recommendations",
+      icon: <FileText className="w-6 h-6" />,
+      color: "from-indigo-500 to-indigo-600",
+      components: [
+        "Docker Containerization",
+        "Kubernetes Deployment",
+        "CI/CD Pipeline Setup",
+        "Monitoring & Logging",
+        "Security Best Practices"
+      ],
+      files: [
+        "Dockerfile",
+        "docker-compose.yml",
+        "k8s/deployment.yaml",
+        ".github/workflows/ci-cd.yml",
+        "docs/devops-guide.md"
+      ]
+    }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+      <div className="max-w-6xl mx-auto">
+        <header className="text-center mb-12">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-4">
+            🛒 DhakaCart E-Commerce
+          </h1>
+          <p className="text-xl text-gray-600">Complete Application Development Flowchart</p>
+          <p className="text-lg text-gray-500 mt-2">Step-by-Step VS Code Implementation Guide</p>
+        </header>
+
+        {/* Main Flowchart */}
+        <div className="mb-12">
+          <div className="bg-white rounded-2xl shadow-xl p-8">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+              Application Architecture Flow
+            </h2>
+            
+            <div className="space-y-4">
+              {steps.map((step, index) => (
+                <div key={step.id} className="relative">
+                  {/* Connector Line */}
+                  {index < steps.length - 1 && (
+                    <div className="absolute left-1/2 -bottom-4 w-1 h-8 bg-gradient-to-b from-gray-300 to-transparent transform -translate-x-1/2 z-0" />
+                  )}
+                  
+                  {/* Step Card */}
+                  <div className={`bg-gradient-to-r ${step.color} rounded-xl p-1 transform transition-all duration-300 hover:scale-105 cursor-pointer`}
+                       onClick={() => toggleSection(step.id)}>
+                    <div className="bg-white rounded-lg p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-4">
+                          <div className={`bg-gradient-to-r ${step.color} p-3 rounded-lg text-white`}>
+                            {step.icon}
+                          </div>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <span className="text-2xl font-bold text-gray-700">Step {step.id}</span>
+                              <CheckCircle className="w-5 h-5 text-green-500" />
+                            </div>
+                            <h3 className="text-xl font-semibold text-gray-800 mt-1">
+                              {step.title}
+                            </h3>
+                          </div>
+                        </div>
+                        {expandedSection === step.id ? (
+                          <ChevronUp className="w-6 h-6 text-gray-600" />
+                        ) : (
+                          <ChevronDown className="w-6 h-6 text-gray-600" />
+                        )}
+                      </div>
+
+                      {/* Expanded Content */}
+                      {expandedSection === step.id && (
+                        <div className="mt-6 space-y-4 animate-fadeIn">
+                          <div className="bg-blue-50 rounded-lg p-4">
+                            <h4 className="font-semibold text-blue-900 mb-3">Components:</h4>
+                            <ul className="space-y-2">
+                              {step.components.map((comp, i) => (
+                                <li key={i} className="flex items-start space-x-2">
+                                  <span className="text-blue-600 mt-1">✓</span>
+                                  <span className="text-gray-700">{comp}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="bg-green-50 rounded-lg p-4">
+                            <h4 className="font-semibold text-green-900 mb-3">VS Code Files to Create:</h4>
+                            <div className="space-y-1">
+                              {step.files.map((file, i) => (
+                                <div key={i} className="flex items-center space-x-2 text-sm font-mono">
+                                  <span className="text-green-600">📄</span>
+                                  <span className="text-gray-700">{file}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Data Flow Diagram */}
+        <div className="bg-white rounded-2xl shadow-xl p-8 mb-12">
+          <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+            Data Flow Architecture
+          </h2>
+          
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+                <h3 className="text-xl font-bold mb-2">Frontend Layer</h3>
+                <p className="text-sm">React.js Application</p>
+                <div className="mt-4 space-y-2 text-left text-sm">
+                  <p>• User Interface</p>
+                  <p>• Form Handling</p>
+                  <p>• State Management</p>
+                  <p>• API Calls</p>
+                </div>
+              </div>
+              <div className="text-4xl my-2">↓</div>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+                <h3 className="text-xl font-bold mb-2">Backend Layer</h3>
+                <p className="text-sm">Node.js + Express API</p>
+                <div className="mt-4 space-y-2 text-left text-sm">
+                  <p>• REST API Endpoints</p>
+                  <p>• Business Logic</p>
+                  <p>• Authentication</p>
+                  <p>• Data Validation</p>
+                </div>
+              </div>
+              <div className="text-4xl my-2">↓</div>
+            </div>
+
+            <div className="text-center">
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+                <h3 className="text-xl font-bold mb-2">Database Layer</h3>
+                <p className="text-sm">PostgreSQL + Redis</p>
+                <div className="mt-4 space-y-2 text-left text-sm">
+                  <p>• Data Storage</p>
+                  <p>• Relationships</p>
+                  <p>• Caching</p>
+                  <p>• Transactions</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* VS Code Setup Guide */}
+        <div className="bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl shadow-xl p-8 text-white">
+          <h2 className="text-3xl font-bold mb-6 text-center">VS Code Setup Quick Start</h2>
+          
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+              <h3 className="text-xl font-bold mb-4">Required Extensions</h3>
+              <ul className="space-y-2 text-sm">
+                <li>✓ ES7+ React/Redux/React-Native snippets</li>
+                <li>✓ Prettier - Code formatter</li>
+                <li>✓ ESLint</li>
+                <li>✓ Docker</li>
+                <li>✓ GitLens</li>
+                <li>✓ Thunder Client (API testing)</li>
+              </ul>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur rounded-xl p-6">
+              <h3 className="text-xl font-bold mb-4">Folder Structure</h3>
+              <pre className="text-xs overflow-x-auto">
+{`dhakacart/
+├── backend/
+│   ├── routes/
+│   ├── controllers/
+│   ├── models/
+│   ├── middleware/
+│   └── server.js
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── components/
+│   │   └── App.js
+└── database/
+    └── schema.sql`}
+              </pre>
+            </div>
+          </div>
+        </div>
+
+        {/* Next Steps */}
+        <div className="mt-12 text-center">
+          <h3 className="text-2xl font-bold text-gray-800 mb-4">Ready to Start?</h3>
+          <p className="text-lg text-gray-600 mb-6">Click on each step above to see detailed implementation guide!</p>
+          <div className="flex justify-center space-x-4">
+            <button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:shadow-lg transform hover:scale-105 transition-all">
+              Start Building
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default DhakaCartFlowchart;

@@ -1,0 +1,406 @@
+// App.js - DhakaCart E-commerce Frontend
+
+import React, { useState, useEffect } from 'react';
+import './App.css';
+
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+function App() {
+  const [products, setProducts] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [currentView, setCurrentView] = useState('products'); // products, cart, login, register
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  // Load user from localStorage on mount
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+    if (token && userData) {
+      setUser(JSON.parse(userData));
+      loadCart();
+    }
+    loadProducts();
+  }, []);
+
+  // Load products from API
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      let url = `${API_URL}/api/products`;
+      const params = new URLSearchParams();
+      
+      if (selectedCategory !== 'all') {
+        params.append('category', selectedCategory);
+      }
+      if (searchQuery) {
+        params.append('search', searchQuery);
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const response = await fetch(url);
+      const data = await response.json();
+      setProducts(data.products || []);
+    } catch (error) {
+      console.error('Error loading products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load cart from API
+  const loadCart = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/cart`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      const data = await response.json();
+      setCart(data.cart || []);
+    } catch (error) {
+      console.error('Error loading cart:', error);
+    }
+  };
+
+  // Handle search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      loadProducts();
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery, selectedCategory]);
+
+  // Login function
+  const handleLogin = async (email, password) => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        loadCart();
+        setCurrentView('products');
+        alert('Login successful!');
+      } else {
+        alert(data.error || 'Login failed');
+      }
+    } catch (error) {
+      alert('Login error: ' + error.message);
+    }
+  };
+
+  // Register function
+  const handleRegister = async (name, email, password) => {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      const data = await response.json();
+      
+      if (response.ok) {
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
+        setUser(data.user);
+        setCurrentView('products');
+        alert('Registration successful!');
+      } else {
+        alert(data.error || 'Registration failed');
+      }
+    } catch (error) {
+      alert('Registration error: ' + error.message);
+    }
+  };
+
+  // Logout function
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setUser(null);
+    setCart([]);
+    setCurrentView('products');
+  };
+
+  // Add to cart
+  const addToCart = async (productId) => {
+    if (!user) {
+      alert('Please login to add items to cart');
+      setCurrentView('login');
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${API_URL}/api/cart`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ product_id: productId, quantity: 1 })
+      });
+
+      if (response.ok) {
+        loadCart();
+        alert('Item added to cart!');
+      }
+    } catch (error) {
+      alert('Error adding to cart: ' + error.message);
+    }
+  };
+
+  // Calculate cart total
+  const cartTotal = cart.reduce((sum, item) => {
+    return sum + (item.product?.price || 0) * item.quantity;
+  }, 0);
+
+  return (
+    <div className="App">
+      {/* Header */}
+      <header className="header">
+        <div className="container">
+          <h1 className="logo">🛒 DhakaCart</h1>
+          <nav className="nav">
+            <button onClick={() => setCurrentView('products')}>Products</button>
+            <button onClick={() => setCurrentView('cart')}>
+              Cart {cart.length > 0 && `(${cart.length})`}
+            </button>
+            {user ? (
+              <>
+                <span>Hello, {user.name}</span>
+                <button onClick={handleLogout}>Logout</button>
+              </>
+            ) : (
+              <>
+                <button onClick={() => setCurrentView('login')}>Login</button>
+                <button onClick={() => setCurrentView('register')}>Register</button>
+              </>
+            )}
+          </nav>
+        </div>
+      </header>
+
+      <div className="container main-content">
+        {/* Products View */}
+        {currentView === 'products' && (
+          <div className="products-section">
+            <div className="filters">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="search-input"
+              />
+              <select 
+                value={selectedCategory} 
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="category-select"
+              >
+                <option value="all">All Categories</option>
+                <option value="laptops">Laptops</option>
+                <option value="smartphones">Smartphones</option>
+                <option value="tablets">Tablets</option>
+                <option value="accessories">Accessories</option>
+              </select>
+            </div>
+
+            {loading ? (
+              <div className="loading">Loading products...</div>
+            ) : (
+              <div className="products-grid">
+                {products.map(product => (
+                  <div key={product.id} className="product-card">
+                    <div className="product-image">
+                      {product.image ? (
+                        <img src={product.image} alt={product.name} />
+                      ) : (
+                        <div className="no-image">📦</div>
+                      )}
+                    </div>
+                    <h3>{product.name}</h3>
+                    <p className="product-category">{product.category}</p>
+                    <p className="product-price">৳{product.price.toLocaleString()}</p>
+                    <p className="product-stock">
+                      {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                    </p>
+                    <button 
+                      onClick={() => addToCart(product.id)}
+                      disabled={product.stock === 0}
+                      className="add-to-cart-btn"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {!loading && products.length === 0 && (
+              <div className="no-products">No products found</div>
+            )}
+          </div>
+        )}
+
+        {/* Cart View */}
+        {currentView === 'cart' && (
+          <div className="cart-section">
+            <h2>Shopping Cart</h2>
+            {cart.length === 0 ? (
+              <div className="empty-cart">
+                <p>Your cart is empty</p>
+                <button onClick={() => setCurrentView('products')}>
+                  Continue Shopping
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="cart-items">
+                  {cart.map((item, index) => (
+                    <div key={index} className="cart-item">
+                      <div className="cart-item-info">
+                        <h3>{item.product?.name}</h3>
+                        <p>Price: ৳{item.product?.price.toLocaleString()}</p>
+                        <p>Quantity: {item.quantity}</p>
+                      </div>
+                      <div className="cart-item-total">
+                        ৳{((item.product?.price || 0) * item.quantity).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="cart-summary">
+                  <h3>Total: ৳{cartTotal.toLocaleString()}</h3>
+                  <button className="checkout-btn">
+                    Proceed to Checkout
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {/* Login View */}
+        {currentView === 'login' && (
+          <LoginForm onLogin={handleLogin} onSwitchToRegister={() => setCurrentView('register')} />
+        )}
+
+        {/* Register View */}
+        {currentView === 'register' && (
+          <RegisterForm onRegister={handleRegister} onSwitchToLogin={() => setCurrentView('login')} />
+        )}
+      </div>
+
+      {/* Footer */}
+      <footer className="footer">
+        <p>© 2025 DhakaCart - Your Electronics Partner</p>
+      </footer>
+    </div>
+  );
+}
+
+// Login Form Component
+function LoginForm({ onLogin, onSwitchToRegister }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onLogin(email, password);
+  };
+
+  return (
+    <div className="auth-form">
+      <h2>Login to DhakaCart</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Login</button>
+      </form>
+      <p>
+        Don't have an account?{' '}
+        <button onClick={onSwitchToRegister} className="link-btn">
+          Register here
+        </button>
+      </p>
+    </div>
+  );
+}
+
+// Register Form Component
+function RegisterForm({ onRegister, onSwitchToLogin }) {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onRegister(name, email, password);
+  };
+
+  return (
+    <div className="auth-form">
+      <h2>Register on DhakaCart</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          placeholder="Full Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        <button type="submit">Register</button>
+      </form>
+      <p>
+        Already have an account?{' '}
+        <button onClick={onSwitchToLogin} className="link-btn">
+          Login here
+        </button>
+      </p>
+    </div>
+  );
+}
+
+export default App;

@@ -1,0 +1,554 @@
+# DhakaCart E-Commerce - Complete Setup Guide
+
+## 📋 Prerequisites
+
+Before starting, install these tools:
+
+1. **Git** - Version control
+   - Download: https://git-scm.com/downloads
+   - Verify: `git --version`
+
+2. **Docker Desktop** - Container platform
+   - Download: https://www.docker.com/products/docker-desktop
+   - Verify: `docker --version` and `docker-compose --version`
+
+3. **Node.js (v18+)** - JavaScript runtime
+   - Download: https://nodejs.org/
+   - Verify: `node --version` and `npm --version`
+
+4. **VS Code** (Recommended) - Code editor
+   - Download: https://code.visualstudio.com/
+
+---
+
+## 🚀 Quick Start (5 Minutes)
+
+### Step 1: Create Project Structure
+
+```bash
+# Create main project directory
+mkdir dhakacart
+cd dhakacart
+
+# Create subdirectories
+mkdir backend frontend database nginx
+
+# Create files
+touch docker-compose.yml
+touch backend/server.js backend/package.json backend/Dockerfile backend/.env
+touch frontend/package.json frontend/Dockerfile
+touch database/init.sql
+touch nginx/nginx.conf
+```
+
+### Step 2: Copy Code Files
+
+Copy the provided code into respective files:
+
+**Backend files:**
+- `backend/server.js` - Backend API code
+- `backend/package.json` - Backend dependencies
+- `backend/Dockerfile` - Backend container config
+- `backend/.env` - Environment variables
+
+**Frontend files:**
+- `frontend/src/App.js` - Frontend React code
+- `frontend/src/App.css` - Frontend styles
+- `frontend/package.json` - Frontend dependencies
+- `frontend/Dockerfile` - Frontend container config
+
+**Database:**
+- `database/init.sql` - Database schema and sample data
+
+**Docker:**
+- `docker-compose.yml` - Multi-container orchestration
+
+### Step 3: Initialize Backend
+
+```bash
+cd backend
+
+# Create package.json
+npm init -y
+
+# Install dependencies
+npm install express cors pg redis bcrypt jsonwebtoken dotenv
+npm install --save-dev nodemon
+
+# Update package.json scripts
+```
+
+Add to `backend/package.json`:
+```json
+"scripts": {
+  "start": "node server.js",
+  "dev": "nodemon server.js"
+}
+```
+
+### Step 4: Initialize Frontend
+
+```bash
+cd ../frontend
+
+# Create React app
+npx create-react-app .
+
+# Or if directory is not empty
+npx create-react-app dhakacart-app
+cd dhakacart-app
+```
+
+Replace `src/App.js` and `src/App.css` with provided code.
+
+### Step 5: Create Environment Files
+
+**Backend `.env`:**
+```env
+NODE_ENV=development
+PORT=5000
+DB_HOST=postgres
+DB_PORT=5432
+DB_NAME=dhakacart
+DB_USER=postgres
+DB_PASSWORD=postgres
+REDIS_HOST=redis
+REDIS_PORT=6379
+JWT_SECRET=your-secret-key-change-in-production
+```
+
+**Frontend `.env`:**
+```env
+REACT_APP_API_URL=http://localhost:5000
+```
+
+### Step 6: Start Everything
+
+```bash
+# From the root dhakacart directory
+docker-compose up -d
+
+# Check if all containers are running
+docker-compose ps
+
+# View logs
+docker-compose logs -f
+```
+
+### Step 7: Access the Application
+
+- **Frontend**: http://localhost:3000
+- **Backend API**: http://localhost:5000
+- **Health Check**: http://localhost:5000/health
+- **Nginx Load Balancer**: http://localhost:8080
+
+---
+
+## 📁 Complete Project Structure
+
+```
+dhakacart/
+├── backend/
+│   ├── server.js
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── Dockerfile
+│   ├── .env
+│   ├── .dockerignore
+│   └── node_modules/
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.js
+│   │   ├── App.css
+│   │   ├── index.js
+│   │   └── index.css
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── Dockerfile
+│   ├── .env
+│   ├── .dockerignore
+│   ├── nginx.conf
+│   └── node_modules/
+├── database/
+│   └── init.sql
+├── nginx/
+│   └── nginx.conf
+├── docker-compose.yml
+├── .gitignore
+└── README.md
+```
+
+---
+
+## 🔧 Detailed Setup Instructions
+
+### Backend Setup
+
+1. **Create `backend/server.js`**
+   - Copy the provided Node.js backend code
+
+2. **Create `backend/package.json`**
+   - Copy the provided package.json
+
+3. **Create `backend/Dockerfile`**
+   - Copy the provided Dockerfile
+
+4. **Create `backend/.dockerignore`**
+```
+node_modules
+npm-debug.log
+.env
+.git
+.gitignore
+```
+
+### Frontend Setup
+
+1. **Initialize React App**
+```bash
+cd frontend
+npx create-react-app .
+```
+
+2. **Replace `src/App.js`**
+   - Copy the provided React frontend code
+
+3. **Replace `src/App.css`**
+   - Copy the provided CSS styles
+
+4. **Create `frontend/Dockerfile`**
+   - Copy the provided Dockerfile
+
+5. **Create `frontend/nginx.conf`** (for production)
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api {
+        proxy_pass http://backend:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+6. **Update `frontend/package.json`**
+   - Add proxy for development:
+```json
+"proxy": "http://localhost:5000"
+```
+
+### Database Setup
+
+1. **Create `database/init.sql`**
+   - Copy the provided SQL schema
+
+This file will automatically run when PostgreSQL container starts for the first time.
+
+### Nginx Configuration
+
+Create `nginx/nginx.conf`:
+```nginx
+events {
+    worker_connections 1024;
+}
+
+http {
+    upstream backend {
+        server backend:5000;
+    }
+
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://frontend:3000;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+
+        location /api {
+            proxy_pass http://backend;
+            proxy_http_version 1.1;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+    }
+}
+```
+
+---
+
+## 🐳 Docker Commands
+
+### Starting Services
+```bash
+# Start all services
+docker-compose up -d
+
+# Start specific service
+docker-compose up -d backend
+
+# Start and view logs
+docker-compose up
+```
+
+### Stopping Services
+```bash
+# Stop all services
+docker-compose down
+
+# Stop and remove volumes (clean slate)
+docker-compose down -v
+```
+
+### Viewing Logs
+```bash
+# All services
+docker-compose logs -f
+
+# Specific service
+docker-compose logs -f backend
+
+# Last 100 lines
+docker-compose logs --tail=100 backend
+```
+
+### Checking Status
+```bash
+# List running containers
+docker-compose ps
+
+# Check resource usage
+docker stats
+```
+
+### Executing Commands
+```bash
+# Access backend container
+docker-compose exec backend sh
+
+# Access database
+docker-compose exec postgres psql -U postgres -d dhakacart
+
+# Run npm commands
+docker-compose exec backend npm install <package>
+```
+
+### Rebuilding Containers
+```bash
+# Rebuild all
+docker-compose build
+
+# Rebuild specific service
+docker-compose build backend
+
+# Rebuild and restart
+docker-compose up -d --build
+```
+
+---
+
+## 🧪 Testing the Application
+
+### 1. Test Backend Health
+```bash
+curl http://localhost:5000/health
+```
+
+Expected response:
+```json
+{
+  "status": "healthy",
+  "database": "connected",
+  "cache": "connected",
+  "timestamp": "2025-11-17T10:30:00.000Z"
+}
+```
+
+### 2. Test API Endpoints
+
+**Get Products:**
+```bash
+curl http://localhost:5000/api/products
+```
+
+**Register User:**
+```bash
+curl -X POST http://localhost:5000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Test User",
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+```
+
+**Login:**
+```bash
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123"
+  }'
+```
+
+### 3. Test Frontend
+- Open browser: http://localhost:3000
+- Browse products
+- Register/Login
+- Add items to cart
+
+---
+
+## 🐛 Troubleshooting
+
+### Problem: Containers not starting
+```bash
+# Check logs
+docker-compose logs
+
+# Remove all containers and start fresh
+docker-compose down -v
+docker-compose up -d
+```
+
+### Problem: Port already in use
+```bash
+# Find process using port 5000
+lsof -i :5000  # Mac/Linux
+netstat -ano | findstr :5000  # Windows
+
+# Kill the process or change port in docker-compose.yml
+```
+
+### Problem: Database connection failed
+```bash
+# Check if postgres is running
+docker-compose ps postgres
+
+# Check postgres logs
+docker-compose logs postgres
+
+# Restart postgres
+docker-compose restart postgres
+```
+
+### Problem: Frontend can't connect to backend
+- Check if `REACT_APP_API_URL` is set correctly
+- Verify backend is running: `curl http://localhost:5000/health`
+- Check browser console for CORS errors
+- Restart frontend: `docker-compose restart frontend`
+
+### Problem: Changes not reflecting
+```bash
+# For backend - restart container
+docker-compose restart backend
+
+# For frontend - rebuild
+docker-compose build frontend
+docker-compose up -d frontend
+```
+
+---
+
+## 📝 Git Setup
+
+Create `.gitignore`:
+```
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+*.env
+
+# Build output
+build/
+dist/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Docker
+*.pid
+```
+
+Initialize Git repository:
+```bash
+git init
+git add .
+git commit -m "Initial commit: DhakaCart e-commerce application"
+
+# Create GitHub repository and push
+git remote add origin https://github.com/yourusername/dhakacart.git
+git branch -M main
+git push -u origin main
+```
+
+---
+
+## ✅ Verification Checklist
+
+After setup, verify:
+
+- [ ] Docker containers running: `docker-compose ps`
+- [ ] Backend health check: http://localhost:5000/health
+- [ ] Frontend accessible: http://localhost:3000
+- [ ] Can register a new user
+- [ ] Can login
+- [ ] Products display correctly
+- [ ] Can add items to cart
+- [ ] Database has sample products
+- [ ] Redis caching works (check logs)
+
+---
+
+## 🎯 Next Steps
+
+After successful setup, move to:
+1. **Week 1, Day 3-4**: Write Kubernetes manifests
+2. **Week 2**: Deploy to AWS EKS
+3. **Week 3**: Implement CI/CD pipeline
+
+---
+
+## 📞 Need Help?
+
+If you encounter issues:
+1. Check logs: `docker-compose logs`
+2. Verify all files are in correct locations
+3. Ensure ports are not in use
+4. Try rebuilding: `docker-compose up -d --build`
+
+Share error messages for specific help!
+
+---
+
+**Congratulations! Your DhakaCart development environment is ready! 🎉**

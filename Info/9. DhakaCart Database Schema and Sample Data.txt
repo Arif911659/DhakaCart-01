@@ -1,0 +1,169 @@
+-- init.sql - DhakaCart Database Schema and Sample Data
+
+-- Create Users Table
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Products Table
+CREATE TABLE IF NOT EXISTS products (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    price DECIMAL(10, 2) NOT NULL,
+    category VARCHAR(100) NOT NULL,
+    stock INTEGER DEFAULT 0,
+    image VARCHAR(500),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Orders Table
+CREATE TABLE IF NOT EXISTS orders (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+    total_amount DECIMAL(10, 2) NOT NULL,
+    status VARCHAR(50) DEFAULT 'pending',
+    shipping_address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Order Items Table
+CREATE TABLE IF NOT EXISTS order_items (
+    id SERIAL PRIMARY KEY,
+    order_id INTEGER REFERENCES orders(id) ON DELETE CASCADE,
+    product_id INTEGER REFERENCES products(id) ON DELETE CASCADE,
+    quantity INTEGER NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Create Indexes for Performance
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_products_name ON products(name);
+CREATE INDEX idx_orders_user_id ON orders(user_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_order_items_order_id ON order_items(order_id);
+
+-- Insert Sample Products (Electronics)
+
+-- Laptops
+INSERT INTO products (name, description, price, category, stock, image) VALUES
+('Dell XPS 13', 'Ultra-portable 13-inch laptop with Intel Core i7', 125000, 'laptops', 15, 'https://images.unsplash.com/photo-1593642632823-8f785ba67e45?w=400'),
+('MacBook Air M2', 'Apple MacBook Air with M2 chip, 13.6-inch display', 145000, 'laptops', 10, 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400'),
+('HP Pavilion 15', 'Mid-range 15-inch laptop for everyday use', 65000, 'laptops', 25, 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400'),
+('Lenovo ThinkPad X1', 'Business-class laptop with exceptional keyboard', 135000, 'laptops', 12, 'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400'),
+('ASUS ROG Gaming', 'High-performance gaming laptop with RTX 3060', 155000, 'laptops', 8, 'https://images.unsplash.com/photo-1603302576837-37561b2e2302?w=400');
+
+-- Smartphones
+INSERT INTO products (name, description, price, category, stock, image) VALUES
+('iPhone 14 Pro', 'Apple iPhone 14 Pro with A16 Bionic chip', 125000, 'smartphones', 20, 'https://images.unsplash.com/photo-1592286927505-4b3dd856d0d7?w=400'),
+('Samsung Galaxy S23', 'Flagship Android phone with excellent camera', 95000, 'smartphones', 30, 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c?w=400'),
+('Google Pixel 7', 'Pure Android experience with AI-powered camera', 72000, 'smartphones', 18, 'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400'),
+('OnePlus 11', 'Flagship killer with fast charging', 65000, 'smartphones', 22, 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400'),
+('Xiaomi 13 Pro', 'High-end specs at competitive price', 78000, 'smartphones', 25, 'https://images.unsplash.com/photo-1585060544812-6b45742d762f?w=400');
+
+-- Tablets
+INSERT INTO products (name, description, price, category, stock, image) VALUES
+('iPad Air', 'Apple iPad Air with M1 chip, 10.9-inch', 75000, 'tablets', 15, 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400'),
+('Samsung Galaxy Tab S8', 'Premium Android tablet with S Pen', 68000, 'tablets', 12, 'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=400'),
+('Microsoft Surface Pro', 'Versatile 2-in-1 tablet/laptop', 125000, 'tablets', 10, 'https://images.unsplash.com/photo-1585790050230-5dd28404f1bf?w=400'),
+('Amazon Fire HD 10', 'Budget-friendly entertainment tablet', 18000, 'tablets', 35, 'https://images.unsplash.com/photo-1544244015-bc2d8ac3c3a4?w=400');
+
+-- Accessories
+INSERT INTO products (name, description, price, category, stock, image) VALUES
+('AirPods Pro', 'Apple wireless earbuds with active noise cancellation', 28000, 'accessories', 40, 'https://images.unsplash.com/photo-1606841837239-c5a1a4a07af7?w=400'),
+('Sony WH-1000XM5', 'Premium noise-cancelling headphones', 38000, 'accessories', 20, 'https://images.unsplash.com/photo-1545127398-14699f92334b?w=400'),
+('Logitech MX Master 3', 'Ergonomic wireless mouse for professionals', 12000, 'accessories', 45, 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400'),
+('Apple Magic Keyboard', 'Wireless keyboard for Mac and iPad', 15000, 'accessories', 30, 'https://images.unsplash.com/photo-1587829741301-dc798b83add3?w=400'),
+('Samsung 27" Monitor', '4K UHD monitor for work and entertainment', 35000, 'accessories', 18, 'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400'),
+('Anker PowerBank 20000mAh', 'High-capacity portable charger', 4500, 'accessories', 60, 'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400'),
+('USB-C Hub 7-in-1', 'Multi-port adapter for laptops', 3500, 'accessories', 50, 'https://images.unsplash.com/photo-1625948515291-69613efd103f?w=400'),
+('Webcam HD 1080p', 'High-quality webcam for video calls', 6500, 'accessories', 35, 'https://images.unsplash.com/photo-1588508065123-287b28e013da?w=400');
+
+-- Insert Sample Users (passwords are 'password123' hashed with bcrypt)
+-- Note: In production, these would be properly hashed
+INSERT INTO users (name, email, password) VALUES
+('Ahmed Rahman', 'ahmed@example.com', '$2b$10$rXKZ5JxJ5JxJ5JxJ5JxJ5OuJxJ5JxJ5JxJ5JxJ5JxJ5JxJ5JxJ5Jx'),
+('Fatima Khan', 'fatima@example.com', '$2b$10$rXKZ5JxJ5JxJ5JxJ5JxJ5OuJxJ5JxJ5JxJ5JxJ5JxJ5JxJ5JxJ5Jx'),
+('Karim Hassan', 'karim@example.com', '$2b$10$rXKZ5JxJ5JxJ5JxJ5JxJ5OuJxJ5JxJ5JxJ5JxJ5JxJ5JxJ5JxJ5Jx');
+
+-- Insert Sample Orders
+INSERT INTO orders (user_id, total_amount, status, shipping_address) VALUES
+(1, 153000, 'delivered', 'House 12, Road 5, Dhanmondi, Dhaka'),
+(2, 75000, 'shipped', 'Flat 3B, Gulshan Avenue, Dhaka'),
+(1, 95000, 'processing', 'House 12, Road 5, Dhanmondi, Dhaka');
+
+-- Insert Sample Order Items
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(1, 1, 1, 125000),
+(1, 15, 1, 28000),
+(2, 11, 1, 75000),
+(3, 7, 1, 95000);
+
+-- Create a function to update the updated_at timestamp
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$ language 'plpgsql';
+
+-- Create triggers for updated_at
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_products_updated_at BEFORE UPDATE ON products
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_orders_updated_at BEFORE UPDATE ON orders
+    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Create a view for order details
+CREATE VIEW order_details AS
+SELECT 
+    o.id as order_id,
+    o.user_id,
+    u.name as customer_name,
+    u.email as customer_email,
+    o.total_amount,
+    o.status,
+    o.shipping_address,
+    o.created_at as order_date,
+    json_agg(
+        json_build_object(
+            'product_id', p.id,
+            'product_name', p.name,
+            'quantity', oi.quantity,
+            'price', oi.price
+        )
+    ) as items
+FROM orders o
+JOIN users u ON o.user_id = u.id
+LEFT JOIN order_items oi ON o.id = oi.order_id
+LEFT JOIN products p ON oi.product_id = p.id
+GROUP BY o.id, o.user_id, u.name, u.email, o.total_amount, o.status, o.shipping_address, o.created_at;
+
+-- Create a view for inventory status
+CREATE VIEW inventory_status AS
+SELECT 
+    category,
+    COUNT(*) as total_products,
+    SUM(stock) as total_stock,
+    AVG(price) as avg_price,
+    SUM(CASE WHEN stock < 10 THEN 1 ELSE 0 END) as low_stock_count
+FROM products
+GROUP BY category;
+
+-- Display summary
+SELECT 'Database initialized successfully!' as message;
+SELECT COUNT(*) as total_products FROM products;
+SELECT COUNT(*) as total_users FROM users;
+SELECT COUNT(*) as total_orders FROM orders;

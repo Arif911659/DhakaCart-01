@@ -1,0 +1,381 @@
+# DhakaCart DevOps Project - 4 Week Roadmap
+**Target Deadline: 15 December 2025**
+
+---
+
+## 📅 Week 1: Foundation & Local Development (Nov 18-24)
+
+### Day 1-2: Setup & Sample Application
+- [ ] Setup development environment (Docker Desktop, VS Code, Git)
+- [ ] Create sample DhakaCart e-commerce app:
+  - React frontend (product listing, cart, checkout)
+  - Node.js/Express backend (REST API)
+  - PostgreSQL database
+  - Redis for caching
+- [ ] Test locally with Docker Compose
+- [ ] Push code to GitHub repository
+
+### Day 3-4: Containerization
+- [ ] Write Dockerfiles for:
+  - Frontend (React - multi-stage build)
+  - Backend (Node.js)
+  - Database (PostgreSQL with init scripts)
+  - Redis cache
+- [ ] Create docker-compose.yml for local testing
+- [ ] Optimize images (Alpine base, layer caching)
+- [ ] Document container architecture
+
+### Day 5-7: AWS Account & Basic Infrastructure
+- [ ] Create AWS account (use free tier)
+- [ ] Setup IAM users with proper permissions
+- [ ] Install AWS CLI and configure credentials
+- [ ] Learn Terraform basics (HCL syntax, providers, resources)
+- [ ] Create first Terraform files:
+  - VPC with public/private subnets
+  - Internet Gateway & NAT Gateway
+  - Security Groups
+- [ ] Test infrastructure provisioning
+
+**Week 1 Deliverable:** Working containerized application running locally + Basic AWS infrastructure
+
+---
+
+## 📅 Week 2: Kubernetes & AWS EKS (Nov 25 - Dec 1)
+
+### Day 8-9: Kubernetes Basics
+- [ ] Learn core Kubernetes concepts:
+  - Pods, Deployments, Services
+  - ConfigMaps, Secrets
+  - Persistent Volumes
+- [ ] Setup local Kubernetes (Minikube or Docker Desktop)
+- [ ] Convert Docker Compose to Kubernetes manifests:
+  - Deployment YAML for frontend (3 replicas)
+  - Deployment YAML for backend (3 replicas)
+  - StatefulSet for PostgreSQL
+  - Deployment for Redis
+  - Services for inter-pod communication
+  - Ingress for external access
+
+### Day 10-11: AWS EKS Setup with Terraform
+- [ ] Write Terraform code for:
+  - EKS cluster (managed Kubernetes)
+  - Node groups (EC2 instances for pods)
+  - IAM roles for EKS
+  - Security groups for cluster
+- [ ] Install kubectl and configure kubeconfig
+- [ ] Deploy application to EKS
+- [ ] Setup AWS Load Balancer Controller
+
+### Day 12-14: Auto-scaling & High Availability
+- [ ] Configure Horizontal Pod Autoscaler (HPA)
+- [ ] Setup Cluster Autoscaler for nodes
+- [ ] Implement:
+  - Liveness probes (health checks)
+  - Readiness probes
+  - Resource limits (CPU/memory)
+- [ ] Create RDS PostgreSQL (managed database)
+- [ ] Setup ElastiCache Redis (managed cache)
+- [ ] Test failover scenarios
+
+**Week 2 Deliverable:** Application running on EKS with auto-scaling and load balancing
+
+---
+
+## 📅 Week 3: CI/CD, Monitoring & Security (Dec 2-8)
+
+### Day 15-16: CI/CD Pipeline
+- [ ] Setup GitHub Actions workflow:
+  - Trigger on push to main branch
+  - Run unit tests
+  - Build Docker images
+  - Push to Amazon ECR (container registry)
+  - Update Kubernetes deployments
+- [ ] Implement rolling updates strategy
+- [ ] Add rollback mechanism
+- [ ] Configure Slack/email notifications
+- [ ] Test complete pipeline
+
+### Day 17-18: Monitoring & Logging
+- [ ] Deploy Prometheus + Grafana on EKS:
+  - Install using Helm charts
+  - Configure scraping endpoints
+- [ ] Create Grafana dashboards:
+  - Pod CPU/Memory usage
+  - Request rates & latency
+  - Error rates (4xx, 5xx)
+  - Database connections
+- [ ] Setup AWS CloudWatch for additional metrics
+- [ ] Configure alerts:
+  - CPU > 80%
+  - Pod crashes
+  - High error rates
+- [ ] Deploy ELK Stack (Elasticsearch, Logstash, Kibana):
+  - Centralized logging
+  - Log aggregation from all pods
+  - Search and visualization
+
+### Day 19-21: Security Hardening
+- [ ] Setup AWS Secrets Manager:
+  - Store database passwords
+  - Store API keys
+  - Integrate with Kubernetes (External Secrets Operator)
+- [ ] Implement HTTPS:
+  - Request SSL certificate (AWS ACM)
+  - Configure ALB with HTTPS listener
+  - Force HTTPS redirect
+- [ ] Network security:
+  - Database in private subnet only
+  - Restrict security group rules
+  - Implement network policies in Kubernetes
+- [ ] Application security:
+  - Implement rate limiting (nginx-ingress)
+  - Add RBAC policies
+  - Use bcrypt for password hashing
+  - Add JWT authentication
+- [ ] Container security:
+  - Scan images with Trivy
+  - Run containers as non-root
+  - Add security scanning to CI/CD
+
+**Week 3 Deliverable:** Fully automated CI/CD with monitoring, logging, and security
+
+---
+
+## 📅 Week 4: Backup, Documentation & Final Testing (Dec 9-15)
+
+### Day 22-23: Backup & Disaster Recovery
+- [ ] Automate RDS backups:
+  - Daily automated snapshots
+  - 7-day retention
+  - Cross-region backup (optional)
+- [ ] Setup point-in-time recovery
+- [ ] Test backup restoration procedure
+- [ ] Document recovery time objectives (RTO)
+- [ ] Create disaster recovery runbook
+- [ ] Setup read replica for failover (optional)
+
+### Day 24-25: Infrastructure as Code Finalization
+- [ ] Complete all Terraform modules:
+  - Networking (VPC, subnets, routing)
+  - Compute (EKS, node groups)
+  - Database (RDS, ElastiCache)
+  - Security (IAM, security groups, secrets)
+  - Monitoring (CloudWatch alarms)
+- [ ] Organize code structure:
+  ```
+  terraform/
+  ├── modules/
+  │   ├── networking/
+  │   ├── eks/
+  │   ├── rds/
+  │   └── security/
+  ├── environments/
+  │   ├── dev/
+  │   └── prod/
+  └── main.tf
+  ```
+- [ ] Add Terraform state backend (S3 + DynamoDB)
+- [ ] Test: destroy and recreate entire infrastructure
+
+### Day 26-27: Documentation
+- [ ] **Architecture Documentation:**
+  - Create detailed architecture diagrams (draw.io/Lucidchart)
+  - Component interaction flow
+  - Network topology
+  - Data flow diagrams
+- [ ] **Setup Guides:**
+  - Prerequisites & tools installation
+  - Step-by-step deployment guide
+  - Environment variables configuration
+  - How to run locally
+- [ ] **Operation Runbooks:**
+  - How to deploy updates
+  - How to scale manually
+  - How to check logs
+  - Troubleshooting common issues
+  - Emergency procedures (rollback, incident response)
+- [ ] **API Documentation:**
+  - Endpoint descriptions
+  - Request/response examples
+- [ ] Create README.md with:
+  - Project overview
+  - Technology stack
+  - Quick start guide
+  - Links to detailed docs
+
+### Day 28 (Dec 15): Final Testing & Submission
+- [ ] **Load Testing:**
+  - Use Apache JMeter or k6
+  - Simulate 100,000 concurrent users
+  - Verify auto-scaling works
+  - Check response times under load
+- [ ] **Failure Testing:**
+  - Kill pods, verify self-healing
+  - Terminate nodes, verify cluster autoscaler
+  - Test database failover
+- [ ] **Security Audit:**
+  - Verify no hardcoded secrets
+  - Check HTTPS enforcement
+  - Review security group rules
+  - Run vulnerability scan
+- [ ] **Complete Checklist Review:**
+  - ✅ Handles 100k+ visitors
+  - ✅ Auto-scaling works
+  - ✅ Zero-downtime deployments
+  - ✅ Monitoring & alerting active
+  - ✅ Centralized logging
+  - ✅ Secure (HTTPS, secrets management)
+  - ✅ Automated backups
+  - ✅ Infrastructure as Code
+  - ✅ Complete documentation
+- [ ] **Final Submission Package:**
+  - GitHub repository link
+  - Architecture diagrams
+  - Demo video (optional but impressive)
+  - Documentation
+  - Live demo URL
+
+---
+
+## 🛠️ Tools & Technologies Checklist
+
+### Development Tools
+- [ ] Docker Desktop
+- [ ] Visual Studio Code
+- [ ] Git
+- [ ] AWS CLI
+- [ ] kubectl
+- [ ] Terraform
+- [ ] Helm
+
+### AWS Services
+- [ ] VPC (Virtual Private Cloud)
+- [ ] EKS (Elastic Kubernetes Service)
+- [ ] EC2 (for EKS nodes)
+- [ ] RDS (PostgreSQL)
+- [ ] ElastiCache (Redis)
+- [ ] ECR (Container Registry)
+- [ ] ALB (Application Load Balancer)
+- [ ] ACM (Certificate Manager)
+- [ ] Secrets Manager
+- [ ] CloudWatch
+- [ ] IAM (Identity & Access Management)
+
+### Application Stack
+- [ ] Frontend: React
+- [ ] Backend: Node.js + Express
+- [ ] Database: PostgreSQL
+- [ ] Cache: Redis
+- [ ] API: RESTful
+
+### DevOps Tools
+- [ ] CI/CD: GitHub Actions
+- [ ] Orchestration: Kubernetes
+- [ ] IaC: Terraform
+- [ ] Monitoring: Prometheus + Grafana
+- [ ] Logging: ELK Stack (or Grafana Loki)
+- [ ] Security: Trivy (container scanning)
+
+---
+
+## 💰 AWS Cost Management (Important!)
+
+### Free Tier Eligible
+- RDS: 750 hours/month (t3.micro)
+- ElastiCache: 750 hours/month (t3.micro)
+- ALB: 750 hours/month
+
+### Potential Costs (Estimate)
+- EKS Cluster: ~$72/month (cluster control plane)
+- EC2 Nodes: ~$30-60/month (2-3 t3.small instances)
+- RDS: Free tier eligible
+- **Total estimated: $100-150/month**
+
+### Cost Optimization Tips
+- Use t3.micro/small instances
+- Stop development environment when not using
+- Delete resources after demo
+- Use AWS Free Tier wisely
+- Consider using Minikube for practice
+
+---
+
+## 📚 Learning Resources
+
+### Week 1 Resources
+- Docker Tutorial: https://docs.docker.com/get-started/
+- React Crash Course: Official React docs
+- Node.js Express: https://expressjs.com/
+
+### Week 2 Resources
+- Kubernetes Official Tutorial: https://kubernetes.io/docs/tutorials/
+- Terraform AWS Provider: https://registry.terraform.io/providers/hashicorp/aws/
+
+### Week 3 Resources
+- GitHub Actions: https://docs.github.com/en/actions
+- Prometheus: https://prometheus.io/docs/
+- Grafana: https://grafana.com/docs/
+
+### Week 4 Resources
+- AWS Well-Architected Framework
+- Kubernetes Best Practices
+
+---
+
+## 🚨 Emergency Fallback Plan
+
+If you fall behind schedule:
+
+### Must-Have (MVP)
+1. Working containerized application
+2. Kubernetes deployment on EKS
+3. Basic CI/CD pipeline
+4. Basic monitoring
+5. Documentation
+
+### Can Skip if Tight on Time
+- Advanced auto-scaling configurations
+- Complex disaster recovery setups
+- Multiple environments (dev/staging/prod)
+- Advanced security scanning
+
+### Daily Time Commitment
+- **Weekdays:** 3-4 hours/day
+- **Weekends:** 6-8 hours/day
+- **Total:** ~25-30 hours/week
+
+---
+
+## 📞 Getting Help
+
+When stuck, I can help you with:
+- Debugging Terraform errors
+- Writing Kubernetes manifests
+- Designing CI/CD pipelines
+- Creating monitoring dashboards
+- Troubleshooting AWS issues
+- Writing documentation
+
+**Just share your error messages or questions!**
+
+---
+
+## ✅ Success Criteria
+
+By December 15, you should have:
+1. ✅ Live application on AWS EKS
+2. ✅ Handles 100k+ concurrent users (proven with load test)
+3. ✅ Automated CI/CD pipeline
+4. ✅ Real-time monitoring dashboards
+5. ✅ Centralized logging system
+6. ✅ Secure infrastructure (HTTPS, secrets management)
+7. ✅ Automated backups
+8. ✅ Complete Infrastructure as Code
+9. ✅ Comprehensive documentation
+10. ✅ Working demo
+
+---
+
+**Ready to start? Begin with Week 1, Day 1! 🚀**
+
+Let me know when you want to start building the sample application!
