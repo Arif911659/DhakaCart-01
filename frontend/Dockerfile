@@ -1,29 +1,19 @@
-# frontend/Dockerfile
-FROM node:18-alpine AS builder
+# frontend/Dockerfile - Simple Version
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 
-# Install dependencies with proper permissions
-RUN npm ci --legacy-peer-deps
+RUN npm install
 
-# Copy application code
 COPY . .
 
-# Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:alpine
+# Serve with simple http server
+RUN npm install -g serve
 
-# Copy build files
-COPY --from=builder /app/build /usr/share/nginx/html
+EXPOSE 3000
 
-# Copy nginx config (if you have one)
-COPY nginx.conf /etc/nginx/conf.d/default.conf 2>/dev/null || echo "No nginx.conf found"
-
-EXPOSE 80
-
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "build", "-l", "3000"]
